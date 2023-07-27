@@ -26,7 +26,7 @@ io.on('connection', (socket) => {
 
 io.on('connection', (socket) => {
     socket.on('message', (msg) => {
-      io.emit('message', msg);
+      io.emit('message', msg.text);
       console.log('message: ' + msg);
     });
 });
