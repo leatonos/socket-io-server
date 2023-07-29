@@ -17,7 +17,6 @@ app.get('/', (req, res) => {
 });
 
 io.on('connection', (socket) => {
-    socket.broadcast.emit('hi');
     socket.on('disconnect', () => {
       console.log('user disconnected');
     });
@@ -25,7 +24,7 @@ io.on('connection', (socket) => {
 
 io.on('connection', (socket) => {
     socket.on('message', (msg) => {
-      io.emit(`message room:${msg.roomId}`, msg.text);
+      io.emit(`message room:${msg.roomId}`, msg);
       console.log('message:');
       console.log(msg)
     });
