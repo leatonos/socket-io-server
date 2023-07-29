@@ -35,7 +35,7 @@ io.on('connection', (socket) => {
 //Change Duck Event
 io.on('connection', (socket) => {
     socket.on('changeDuck', (change) => {
-      io.emit(`message room:${msg.roomId}`, msg);
+      io.emit(`message room:${change.roomId}`, change);
     });
 });
 
