@@ -16,17 +16,26 @@ app.get('/', (req, res) => {
   res.send('<h1>Server running</h1>');
 });
 
+//Disconnect Event
 io.on('connection', (socket) => {
     socket.on('disconnect', () => {
       console.log('user disconnected');
     });
 });
 
+//Message event
 io.on('connection', (socket) => {
     socket.on('message', (msg) => {
       io.emit(`message room:${msg.roomId}`, msg);
       console.log('message:');
       console.log(msg)
+    });
+});
+
+//Change Duck Event
+io.on('connection', (socket) => {
+    socket.on('changeDuck', (change) => {
+      io.emit(`message room:${msg.roomId}`, msg);
     });
 });
 
