@@ -25,8 +25,9 @@ io.on('connection', (socket) => {
 
 io.on('connection', (socket) => {
     socket.on('message', (msg) => {
-      io.emit('message', msg.text);
-      console.log('message: ' + msg);
+      io.emit(`message room:${msg.roomId}`, msg.text);
+      console.log('message:');
+      console.log(msg)
     });
 });
 
