@@ -7,7 +7,6 @@ app.get('/', (req, res) => {
   res.send(`<h1>We are online! rooms running right now</h1>`);
 });
 
-
 const io = require("socket.io")(server, {
   cors: {
     origin: "*",
@@ -28,6 +27,7 @@ const activeRooms = [];
 
 io.on('connection', (socket) => {
 
+    //This happens when someone tries to enter a room
     socket.on('joinRoom' , (roomId,duckName,duckColor)=>{
       socket.data.username = duckName
       socket.data.duckColor = duckColor
@@ -83,7 +83,6 @@ io.on('connection', (socket) => {
 });
 
 //Rooms namespace
-
 io.of("/room").on("connection", (socket) => {
   socket.on("user:list", () => {});
 });
@@ -146,7 +145,6 @@ const removeDuckFromRoom = (roomId,duckId) =>{
 }
 
 const port = process.env.PORT || 3000
-
 
 server.listen(port, () => {
   console.log(`Server is running on port ${port}`);
