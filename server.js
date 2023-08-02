@@ -4,7 +4,7 @@ const http = require('http');
 const server = http.createServer(app);
 
 app.get('/', (req, res) => {
-  res.send(`<h1>We have ${getAllRooms.length} rooms running right now</h1>`);
+  res.send(`<h1>We are online! rooms running right now</h1>`);
 });
 
 
