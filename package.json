@@ -17,7 +17,7 @@
     "socket.io": "^4.7.1"
   },
   "engines": {
-    "node": "14.x"
+    "node": "18.x"
   },
   "repository": {
     "url": "https://glitch.com/edit/#!/glitch-hello-node"
