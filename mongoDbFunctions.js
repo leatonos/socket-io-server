@@ -125,7 +125,7 @@ async function removeDuckFromRoom(roomId,duckIdToRemove){
    
      const room = await roomCollection.findOne(filter, options);
 
-     if(console.log(room.ducks.length))
+     console.log(room)
    
      return room
 
