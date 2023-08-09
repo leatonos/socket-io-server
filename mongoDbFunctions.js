@@ -42,7 +42,7 @@ async function getRoomInfo(roomId) {
    const query = {_id:new ObjectId(roomId)}
 
    const options = {
-    projection: { _id: 0, ducks: 1},
+    projection: { _id: 0, ducks: 1,roomName:1,limit:1},
   };
 
    const room = await roomCollection.findOne(query, options);
@@ -124,6 +124,8 @@ async function removeDuckFromRoom(roomId,duckIdToRemove){
     };
    
      const room = await roomCollection.findOne(filter, options);
+
+     if(console.log(room.ducks.length))
    
      return room
 
@@ -162,7 +164,7 @@ async function editDuck(roomId,duckId,duckName,duckColor){
       );
 
       const options = {
-        projection: { _id: 0, ducks: 1 },
+        projection: { _id: 0, ducks: 1,ducks: 1,roomName:1,limit:1 },
       };
      
        const room = await roomCollection.findOne(filter, options);
@@ -173,6 +175,10 @@ async function editDuck(roomId,duckId,duckName,duckColor){
     }finally{
       await client.close()
     }
+
+}
+
+async function deleteRoom(roomId){
 
 }
 
