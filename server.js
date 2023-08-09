@@ -9,19 +9,12 @@ app.get('/', (req, res) => {
   res.send(`<h1>We are online! rooms running right now</h1>`);
 });
 
-const corsOptions = {
-  origin:  "http://localhost:3000", // Replace with your client domain
-  methods: ['GET', 'POST'], // Specify allowed methods
-  allowedHeaders: ['Content-Type', 'Authorization'], // Specify allowed headers
-};
-
-app.use(cors(corsOptions));
-
 const io = require("socket.io")(server, {
   cors: {
     origin: ["http://localhost:3000","https://quack-rooms.vercel.app/"],
     methods: ["GET", "POST"],
-    allowedHeaders: ['Content-Type', 'Authorization'], // Specify allowed headers
+    allowedHeaders: ["my-custom-header"],
+    credentials: true
   },
   connectionStateRecovery: {
     // the backup duration of the sessions and the packets
