@@ -26,13 +26,13 @@ const io = require("socket.io")(server, {
 
 io.on('connection', (socket) => {
 
-    //DONE
+    
     socket.on('createRoom', async()=>{
       const mongoDBRooms = await mongoDB.getAllRooms()
       io.emit('activeRooms', mongoDBRooms);
     })
 
-    //This happens when someone tries to enter a room DONE!
+    //This happens when someone tries to enter a room
     socket.on('joinRoom' , async(roomId,duckName,duckColor)=>{
 
       socket.data.duckName = duckName
@@ -45,7 +45,6 @@ io.on('connection', (socket) => {
       }
 
       socket.join(roomId)
-      emitDucksInRoom(roomId)
 
       const updatedRoom = await mongoDB.addDuckToRoom(roomId,newDuck)
       const messageObj = {
@@ -81,13 +80,19 @@ io.on('connection', (socket) => {
           console.log(`Duck with id:${socket.id} is leaving the room ${room}`)
 
           const disconnectMessage = {
-            text: `A duck named: ${socket.data.username} left the room`,
+            text: `A duck named: ${socket.data.duckName} left the room`,
             duckName:"Duck server",
-            color:'Server',
+            color:'#FFD700',
             roomId:room
           }
 
           const updatedRoomInfo = await mongoDB.removeDuckFromRoom(room, socket.id)
+          if(!updatedRoomInfo){
+            return
+          }
+          if(updatedRoomInfo.ducks.length < 1){
+            await mongoDB.deleteRoom(room)
+          }
           io.to(room).emit('new message',disconnectMessage)
           io.to(room).emit(`Ducks in the room`, updatedRoomInfo)
         }

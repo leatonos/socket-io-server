@@ -23,7 +23,6 @@ async function getAllRooms() {
    const cursor = roomCollection.find({})
    
     const result = await cursor.toArray()
-
     return result
     
   } finally {
@@ -90,6 +89,8 @@ async function addDuckToRoom(roomId,duckObj){
 
 }
 
+
+
 /**
  * 
  * @param {string} roomId 
@@ -134,6 +135,7 @@ async function removeDuckFromRoom(roomId,duckIdToRemove){
   }
 
 }
+
 /**
  * 
  * @param {string} roomId 
@@ -180,6 +182,28 @@ async function editDuck(roomId,duckId,duckName,duckColor){
 
 async function deleteRoom(roomId){
 
+  const client = new MongoClient(uri);
+
+  try{
+
+    const database = client.db('QuackChat')
+    const roomCollection = database.collection('QuackRooms')
+
+    const query = {_id: new ObjectId(roomId)}
+
+    const deleteResult = await roomCollection.deleteOne(query)
+
+    if (deleteResult.deletedCount === 1) {
+      console.log("Successfully deleted one room.");
+    } else {
+      console.log("No documents matched the query. Deleted 0 rooms.");
+    }
+
+  } finally {
+    await client.close();
+  }
+
+
 }
 
 
@@ -188,5 +212,6 @@ module.exports = {
   addDuckToRoom,
   removeDuckFromRoom,
   editDuck,
+  deleteRoom,
   getRoomInfo
 };
