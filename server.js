@@ -3,13 +3,15 @@ const app = express();
 const http = require('http');
 const server = http.createServer(app);
 
+const mongoDB = require('./mongoDbFunctions')
+
 app.get('/', (req, res) => {
   res.send(`<h1>We are online! rooms running right now</h1>`);
 });
 
 const io = require("socket.io")(server, {
   cors: {
-    origin: "*",
+    origin: ["*","http://localhost:3000"],
     methods: ["GET", "POST"],
     allowedHeaders: ["my-custom-header"],
     credentials: true
@@ -22,129 +24,124 @@ const io = require("socket.io")(server, {
   }
 });
 
-//Both namespaces share the same 'Database'
-const activeRooms = [];
-
 io.on('connection', (socket) => {
 
-    //This happens when someone tries to enter a room
-    socket.on('joinRoom' , (roomId,duckName,duckColor)=>{
-      socket.data.username = duckName
-      socket.data.duckColor = duckColor
-      socket.join(roomId)
-      
-      if(findRoomIndex(roomId) != -1){
-        console.log(`Adding a duck in the Room index:${findRoomIndex(roomId)}`)
-        activeRooms[findRoomIndex(roomId)].ducks.push({duckId:socket.id,duckName:duckName,color:duckColor})
-      }else{
-        console.log("Error: Room not found")
-      }
-      
-      console.log('userJoined Room:',roomId)
-      io.emit('activeRooms', activeRooms);
+    //DONE
+    socket.on('createRoom', async()=>{
+      const mongoDBRooms = await mongoDB.getAllRooms()
+      io.emit('activeRooms', mongoDBRooms);
     })
 
-    socket.on('createRoom',(roomId,roomName,limit)=>{
-      activeRooms.push({
-        roomId:roomId,
-        roomName:roomName,
-        limit:limit,
-        ducks:[]
-      })
-     
-      console.log(activeRooms)
+    //This happens when someone tries to enter a room DONE!
+    socket.on('joinRoom' , async(roomId,duckName,duckColor)=>{
+
+      socket.data.duckName = duckName
+      socket.data.color = duckColor
+
+      const newDuck = {
+        duckId:socket.id,
+        duckName:duckName,
+        color:duckColor
+      }
+
+      socket.join(roomId)
+      emitDucksInRoom(roomId)
+
+      const updatedRoom = await mongoDB.addDuckToRoom(roomId,newDuck)
+      const messageObj = {
+        text: `There is a new duck in this room`,
+        duckName:'Duck server',
+        color:'#FFD700',
+        roomId:socket.id
+      }
+
+      const activeRooms = await mongoDB.getAllRooms()
+
+      io.to(roomId).emit('new message',messageObj)
+      io.emit('activeRooms', activeRooms);
+      console.log(updatedRoom)
+      io.to(roomId).emit(`Ducks in the room`, updatedRoom)
     })
-    
+   
+    //This happens when someone tries to enter a room DONE!
     socket.on('message', (msg) => {
       console.log(msg)
       io.to(msg.roomId).emit('new message',msg)
     });
-
+    //Does nothing for now
     socket.on("disconnect", () => {
-     // console.log(`User with socket ${socket.id} was disconnected`)
+     //console.log(`User with socket ${socket.id} was disconnected`)
     });
 
-    socket.on("disconnecting", (reason) => {
+    socket.on("disconnecting", async(reason) => {
+     
       for (const room of socket.rooms) {
         if (room !== socket.id) {
-          socket.to(room).emit("A duck left the room", socket.id);
-          if(findRoomIndex(room) != -1){
-           removeDuckFromRoom(room,socket.id) 
+
+          console.log(`Duck with id:${socket.id} is leaving the room ${room}`)
+
+          const disconnectMessage = {
+            text: `A duck named: ${socket.data.username} left the room`,
+            duckName:"Duck server",
+            color:'Server',
+            roomId:room
           }
+
+          const updatedRoomInfo = await mongoDB.removeDuckFromRoom(room, socket.id)
+          io.to(room).emit('new message',disconnectMessage)
+          io.to(room).emit(`Ducks in the room`, updatedRoomInfo)
         }
       }
-      io.emit('activeRooms', activeRooms);
+
+      io.emit('activeRooms', await mongoDB.getAllRooms());
+      
     });
 
-    socket.on("getRooms",(id) =>{
-      io.to(id).emit('activeRooms', activeRooms);
+    socket.on("getRooms", async(id) =>{
+      io.to(id).emit('activeRooms', await mongoDB.getAllRooms());
     })
 
+    socket.on("duckChange", async(roomId,duckId,duckName,duckColor) =>{
+
+
+     const roomInfo = await mongoDB.editDuck(roomId,duckId,duckName,duckColor)
+     io.to(roomId).emit(`Ducks in the room`, roomInfo)
+
+    })
+
+
+
 });
 
-//Rooms namespace
-io.of("/room").on("connection", (socket) => {
-  socket.on("user:list", () => {});
-});
 
-//Get all Users in a Room
-const getUsersInRoom = (roomName) => {
+function emitDucksInRoom(roomName) {
+  console.log('emmiting changes')
+  const socketsInRoom = [];
   const room = io.sockets.adapter.rooms.get(roomName);
 
   if (room) {
-    const sockets = Array.from(room.values()).map((socketId) => io.sockets.sockets.get(socketId));
-    const users = sockets.map((socket) => ({ id: socket.id, username: socket.username }));
-    return users;
-  } else {
-    return [];
-  }
-};
-
-
-const findRoomIndex = (roomId) => {
-  for (let i = 0; i < activeRooms.length; i++) {
-    if (activeRooms[i].roomId === roomId) {
-      return i; // Room with the given roomId exists, return its index
+    for (const socketId of room) {
+      const socket = io.sockets.sockets.get(socketId);
+      if (socket) {
+        socketsInRoom.push({
+          duckId: socket.id,
+          duckName: socket.data.duckName,
+          color: socket.data.color
+        });
+      }
     }
+
+    console.log('These are the ducks in this room:')
+    console.log(socketsInRoom)
+
+
   }
-  return -1; // Room with the given roomId does not exist in the array
+  
+  io.to(roomName).emit(`Ducks in the room`, socketsInRoom);
 }
 
-const findDuckInTheRoom = (roomId,duckId) => {
-  for (let i = 0; i < activeRooms.length; i++) {
-    if (activeRooms[i].roomId === roomId) {
-        let duckArray = activeRooms[i].ducks
-        for(let duckIndex = 0;duckIndex < duckArray.length;duckIndex++){
-          if(duckArray[duckIndex].duckId === duckId){
-            return duckIndex
-          }
-        }
-    }
-  }
-  return -1; // We could not find the duck
-}
 
-/**
- * Removes a user "Duck" from a quack room.
- * Also if there are no more ducks left in the room it deletes the room
- * @param {string} roomId - the roomId where the duck is
- * @param {string} duckId - the duck id
- */
-const removeDuckFromRoom = (roomId,duckId) =>{
-
-  const duckIndex = findDuckInTheRoom(roomId,duckId)
-  const roomIndex = findRoomIndex(roomId)
-
-  if(duckIndex != -1){
-    activeRooms[roomIndex].ducks.splice(duckIndex,1)
-  }
-
-  if(activeRooms[roomIndex].ducks.length == 0){
-    activeRooms.splice(roomIndex,1)
-  }
-}
-
-const port = process.env.PORT || 3000
+const port = process.env.PORT || 3004
 
 server.listen(port, () => {
   console.log(`Server is running on port ${port}`);
