@@ -11,10 +11,8 @@ app.get('/', (req, res) => {
 
 const io = require("socket.io")(server, {
   cors: {
-    origin: ["*","http://localhost:3000"],
-    methods: ["GET", "POST"],
-    allowedHeaders: ["my-custom-header"],
-    credentials: true
+    origin: ["*","http://localhost:3000","https://quack-rooms.vercel.app/"],
+    methods: ["GET", "POST"]
   },
   connectionStateRecovery: {
     // the backup duration of the sessions and the packets
