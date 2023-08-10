@@ -14,7 +14,7 @@ const io = require("socket.io")(server, {
     origin: '*',
     methods: ["GET", "POST"],
     allowedHeaders: ["my-custom-header"],
-    credentials: true
+    credentials: false
   },
   connectionStateRecovery: {
     // the backup duration of the sessions and the packets
