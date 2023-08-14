@@ -114,6 +114,17 @@ io.on('connection', (socket) => {
 
     })
 
+    socket.on("sendQuack", async(roomId,duckId,duckName,duckColor) =>{
+      const duckInfo = {
+        duckId:duckId,
+        duckName:duckName,
+        color:duckColor
+      }
+
+      io.to(roomId).emit(`Quack`, duckInfo)
+ 
+     })
+
 
 
 });

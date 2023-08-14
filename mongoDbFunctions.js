@@ -6,6 +6,8 @@ require('dotenv').config();
 
 const uri = process.env.MONGODB_URI
 
+
+
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 /**
  * 
@@ -13,9 +15,16 @@ const uri = process.env.MONGODB_URI
  */
 async function getAllRooms() {
 
-  const client = new MongoClient(uri);
+  
+  const client = new MongoClient(uri,{ 
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS:60000 
+  });  
+  
 
   try {
+
+   await client.connect();
 
    const database = client.db('QuackChat')
    const roomCollection = database.collection('QuackRooms')
@@ -33,23 +42,39 @@ async function getAllRooms() {
 }
 
 async function getRoomInfo(roomId) {
-  const client = new MongoClient(uri);
 
-   const database = client.db('QuackChat')
-   const roomCollection = database.collection('QuackRooms')
+    
+  const client = new MongoClient(uri,{ 
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS:60000 
+  });  
 
-   const query = {_id:new ObjectId(roomId)}
+  try{
 
-   const options = {
-    projection: { _id: 0, ducks: 1,roomName:1,limit:1},
-  };
-
-   const room = await roomCollection.findOne(query, options);
    
-   // Ensures that the client will close when you finish/error
-   await client.close();
-d
-   return room 
+    await client.connect();
+
+    const database = client.db('QuackChat')
+    const roomCollection = database.collection('QuackRooms')
+ 
+    const query = {_id:new ObjectId(roomId)}
+ 
+    const options = {
+     projection: { _id: 0, ducks: 1,roomName:1,limit:1},
+   };
+ 
+    const room = await roomCollection.findOne(query, options);
+    return room 
+  
+  }catch (err) {
+    console.error('Error:', err);
+  }finally{
+  // Ensures that the client will close when you finish/error
+  await client.close();
+  }
+
+   
+   
   
 }
 
@@ -60,10 +85,17 @@ d
  * @returns roomInfo
  */
 async function addDuckToRoom(roomId,duckObj){
-  const client = new MongoClient(uri);
+
+    
+  const client = new MongoClient(uri,{ 
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS:60000 
+  });  
 
   try{
 
+  await client.connect();
+  
   const database = client.db('QuackChat')
   const roomCollection = database.collection('QuackRooms')
 
@@ -83,13 +115,13 @@ async function addDuckToRoom(roomId,duckObj){
 
   return room
 
+  }catch (err) {
+    console.error('Error:', err);
   }finally{
     await client.close()
   }
 
 }
-
-
 
 /**
  * 
@@ -99,9 +131,14 @@ async function addDuckToRoom(roomId,duckObj){
  */
 async function removeDuckFromRoom(roomId,duckIdToRemove){
 
-  const client = new MongoClient(uri);
-
+  
+  const client = new MongoClient(uri,{ 
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS:60000 
+  });  
+ 
   try{
+    await client.connect();
 
     const database = client.db('QuackChat')
     const roomCollection = database.collection('QuackRooms')
@@ -130,6 +167,8 @@ async function removeDuckFromRoom(roomId,duckIdToRemove){
    
      return room
 
+  }catch (err) {
+    console.error('Error:', err);
   }finally{
     await client.close()
   }
@@ -146,9 +185,15 @@ async function removeDuckFromRoom(roomId,duckIdToRemove){
  */
 async function editDuck(roomId,duckId,duckName,duckColor){
   
-  const client = new MongoClient(uri);
+ 
+const client = new MongoClient(uri,{ 
+  useUnifiedTopology: true,
+  serverSelectionTimeoutMS:60000 
+});  
   
     try{
+
+      await client.connect();
 
       const database = client.db('QuackChat')
       const roomCollection = database.collection('QuackRooms')
@@ -174,6 +219,8 @@ async function editDuck(roomId,duckId,duckName,duckColor){
        return room
 
 
+    }catch (err) {
+      console.error('Error:', err);
     }finally{
       await client.close()
     }
@@ -182,9 +229,15 @@ async function editDuck(roomId,duckId,duckName,duckColor){
 
 async function deleteRoom(roomId){
 
-  const client = new MongoClient(uri);
+  const client = new MongoClient(uri,{ 
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS:60000 
+  });  
+  
 
   try{
+
+    await client.connect();
 
     const database = client.db('QuackChat')
     const roomCollection = database.collection('QuackRooms')
@@ -199,6 +252,8 @@ async function deleteRoom(roomId){
       console.log("No documents matched the query. Deleted 0 rooms.");
     }
 
+  }catch (err) {
+    console.error('Error:', err);
   } finally {
     await client.close();
   }
