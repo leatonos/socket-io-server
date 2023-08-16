@@ -121,7 +121,17 @@ io.on('connection', (socket) => {
         color:duckColor
       }
 
+      const messageObj = {
+        text: `Quack!`,
+        duckName:duckName,
+        color:duckColor,
+        roomId:roomId
+      }
+
+      console.log('Quack received by', duckInfo)
+
       io.to(roomId).emit(`Quack`, duckInfo)
+      io.to(roomId).emit('new message',messageObj)
  
      })
 
