@@ -1,13 +1,9 @@
-// Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 
+const timeout = 4000;
 
 const uri = process.env.MONGODB_URI
-
-
-
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 /**
  * 
@@ -18,7 +14,7 @@ async function getAllRooms() {
   
   const client = new MongoClient(uri,{ 
     useUnifiedTopology: true,
-    serverSelectionTimeoutMS:60000 
+    serverSelectionTimeoutMS:timeout 
   });  
   
 
@@ -41,12 +37,17 @@ async function getAllRooms() {
   }
 }
 
+/**
+ * 
+ * @param {string} roomId 
+ * @returns A room object
+ */
 async function getRoomInfo(roomId) {
 
     
   const client = new MongoClient(uri,{ 
     useUnifiedTopology: true,
-    serverSelectionTimeoutMS:60000 
+    serverSelectionTimeoutMS:timeout 
   });  
 
   try{
@@ -89,7 +90,7 @@ async function addDuckToRoom(roomId,duckObj){
     
   const client = new MongoClient(uri,{ 
     useUnifiedTopology: true,
-    serverSelectionTimeoutMS:60000 
+    serverSelectionTimeoutMS:timeout 
   });  
 
   try{
@@ -134,7 +135,7 @@ async function removeDuckFromRoom(roomId,duckIdToRemove){
   
   const client = new MongoClient(uri,{ 
     useUnifiedTopology: true,
-    serverSelectionTimeoutMS:60000 
+    serverSelectionTimeoutMS:timeout 
   });  
  
   try{
@@ -188,7 +189,7 @@ async function editDuck(roomId,duckId,duckName,duckColor){
  
 const client = new MongoClient(uri,{ 
   useUnifiedTopology: true,
-  serverSelectionTimeoutMS:60000 
+  serverSelectionTimeoutMS:timeout 
 });  
   
     try{
@@ -231,7 +232,7 @@ async function deleteRoom(roomId){
 
   const client = new MongoClient(uri,{ 
     useUnifiedTopology: true,
-    serverSelectionTimeoutMS:60000 
+    serverSelectionTimeoutMS:timeout 
   });  
   
 

@@ -11,6 +11,7 @@
     "@fastify/static": "^6.10.2",
     "@fastify/view": "^8.0.0",
     "@socket.io/admin-ui": "^0.5.1",
+    "@socket.io/mongo-adapter": "^0.3.0",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "fastify": "^4.19.2",
