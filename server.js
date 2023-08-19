@@ -4,10 +4,21 @@ const http = require('http');
 const server = http.createServer(app);
 
 const mongoDB = require('./mongoDbFunctions')
+app.use(express.json());
 
 app.get('/', (req, res) => {
   res.send(`<h1>We are online! rooms running right now</h1>`);
 });
+
+
+app.get('/rooms', async(req, res) => {
+  const mongoDBRooms = await mongoDB.getAllRooms()
+  res.send(mongoDBRooms);
+});
+
+
+
+
 
 const io = require("socket.io")(server, {
   cors: {

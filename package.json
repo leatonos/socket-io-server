@@ -1,20 +1,15 @@
 {
-  "name": "glitch-hello-node",
+  "name": "quack-rooms-",
   "version": "0.1.0",
-  "description": "A simple Node app built on fastify, instantly up and running. Built to be remixed on Glitch.com.",
+  "description": "A socket IO server that manages the quackrooms",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
-    "@fastify/formbody": "^7.4.0",
-    "@fastify/static": "^6.10.2",
-    "@fastify/view": "^8.0.0",
     "@socket.io/admin-ui": "^0.5.1",
-    "@socket.io/mongo-adapter": "^0.3.0",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
-    "fastify": "^4.19.2",
     "handlebars": "^4.7.7",
     "mongodb": "^5.7.0",
     "socket.io": "^4.7.1"
@@ -27,7 +22,6 @@
   },
   "license": "MIT",
   "keywords": [
-    "node",
-    "glitch"
+    "node","ducks"
   ]
 }
