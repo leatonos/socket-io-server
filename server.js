@@ -11,12 +11,15 @@ app.get('/', (req, res) => {
 });
 
 
-app.get('/rooms', async(req, res) => {
+app.get('/allrooms', async(req, res) => {
   const mongoDBRooms = await mongoDB.getAllRooms()
   res.send(mongoDBRooms);
 });
 
-
+app.get('/room', async(req, res) => {
+  const mongoDBRooms = await mongoDB.getRoomInfo()
+  res.send(mongoDBRooms);
+});
 
 
 
@@ -78,6 +81,7 @@ io.on('connection', (socket) => {
       console.log(msg)
       io.to(msg.roomId).emit('new message',msg)
     });
+
     //Does nothing for now
     socket.on("disconnect", () => {
      //console.log(`User with socket ${socket.id} was disconnected`)
